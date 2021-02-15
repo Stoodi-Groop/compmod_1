@@ -438,6 +438,146 @@ This is the new data:
 - Daina: 148 correct answers out of 172 questions (again, Daina never gets bored)
 - Mikkel: 34 correct answers out of 65 questions
 
+```{r}
+#sampling from the posteriors 
+samples.riccardo <- 
+    d.r %>% 
+    slice_sample(n = 1000, weight_by = d.r$posterior, replace = T)
+
+samples.kristian <- 
+    d.k %>% 
+    slice_sample(n = 1000, weight_by = d.k$posterior, replace = T)
+
+samples.daina <- 
+    d.d %>% 
+    slice_sample(n = 1000, weight_by = d.d$posterior, replace = T)
+
+samples.mikkel <- 
+    d.m %>% 
+    slice_sample(n = 1000, weight_by = d.m$posterior, replace = T)
+```
+
+
+```{r}
+#doing predictions for Riccardo
+prediction.r <- rbinom(n = 1e4, size = 10, prob = rnorm(1e4, mean(samples.riccardo$grid), sd(samples.riccardo$grid) ))
+
+
+hist(prediction.r)
+
+#doing predictions for Kristian
+prediction.k <- rbinom(n = 1e4, size = 12, prob = rnorm(1e4, mean(samples.kristian$grid), sd(samples.kristian$grid) ))
+
+hist(prediction.k)
+
+#doing predictions for Daiba
+prediction.d <- rbinom(n = 1e4, size = 172, prob = rnorm(1e4, mean(samples.daina$grid), sd(samples.daina$grid) ))
+
+hist(prediction.d)
+
+#doing predictions for Mikkel
+prediction.m <- rbinom(n = 1e4, size = 65, prob = rnorm(1e4, mean(samples.mikkel$grid), sd(samples.mikkel$grid) ))
+
+hist(prediction.m)
+
+
+```
+
+
+
+```{r}
+#Riccardo
+new.r <- 
+    d.r %>% 
+    mutate(prior = posterior)
+
+#Compute the likelihood at each value in grid
+likelihood.r <- dbinom(9 , size = 10 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.r <- likelihood.r * new.r$prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.r <- unstd.posterior.r / sum(unstd.posterior.r)
+
+#Draw the plot
+ggplot(new.r, aes(grid,posterior.r)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Riccardo's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+
+#kristian
+new.k <- 
+    d.k %>% 
+    mutate(prior = posterior)
+
+#Compute the likelihood at each value in grid
+likelihood.k <- dbinom(8 , size = 12 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.k <- likelihood.k * new.k$prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.k <- unstd.posterior.k / sum(unstd.posterior.k)
+
+#Draw the plot
+ggplot(new.k, aes(grid,posterior.k)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+
+#Daina
+new.d <- 
+    d.d %>% 
+    mutate(prior = posterior)
+
+#Compute the likelihood at each value in grid
+likelihood.d <- dbinom(9 , size = 10 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.d <- likelihood.d * new.d$prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.d <- unstd.posterior.d / sum(unstd.posterior.d)
+
+#Draw the plot
+ggplot(new.d, aes(grid,posterior.d)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Daina's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+
+#Mikkel
+new.m <- 
+    d.m %>% 
+    mutate(prior = posterior)
+
+#Compute the likelihood at each value in grid
+likelihood.k <- dbinom(148 , size = 172 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.m <- likelihood.m * new.m$prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.m <- unstd.posterior.m / sum(unstd.posterior.m)
+
+#Draw the plot
+ggplot(new.m, aes(grid,posterior.m)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+
+
+
+```
+```{r}
+#checking HDPI
+samples.r<-sample(p_grid, prob=posterior.r, size=1e4, replace=TRUE)
+HPDI(samples.r, 0.5)
+
+#checking HDPI
+samples.k<-sample(p_grid, prob=posterior.k, size=1e4, replace=TRUE)
+HPDI(samples.k, 0.5)
+
+#checking HDPI
+samples.d<-sample(p_grid, prob=posterior.d, size=1e4, replace=TRUE)
+HPDI(samples.d, 0.5)
+
+#checking HDPI
+samples.m<-sample(p_grid, prob=posterior.m, size=1e4, replace=TRUE)
+HPDI(samples.m, 0.5)
+
+
+```
+
+
 Guidance Tips
 
 1. There are at least two ways of assessing predictions.
