@@ -464,31 +464,104 @@ samples.mikkel <-
 #doing predictions for Riccardo
 prediction.r <- rbinom(n = 1e4, size = 10, prob = rnorm(1e4, mean(samples.riccardo$grid), sd(samples.riccardo$grid) ))
 
-#plot
+#simple plot
 hist(prediction.r) 
 
 #doing predictions for Kristian
 prediction.k <- rbinom(n = 1e4, size = 12, prob = rnorm(1e4, mean(samples.kristian$grid), sd(samples.kristian$grid) ))
 
-#plot
+#simple plot
 hist(prediction.k)
 
 #doing predictions for Daina
 prediction.d <- rbinom(n = 1e4, size = 172, prob = rnorm(1e4, mean(samples.daina$grid), sd(samples.daina$grid) ))
 
-#plot
+#simple plot
 hist(prediction.d)
 
 #doing predictions for Mikkel
 prediction.m <- rbinom(n = 1e4, size = 65, prob = rnorm(1e4, mean(samples.mikkel$grid), sd(samples.mikkel$grid) ))
 
-#plot
+#simple plot
 hist(prediction.m)
 
 
 ```
 
+Now plotting the predictions and highlighting expectations using different colors
 
+```{r}
+#saving predictions as a dataframe 
+prediction.r <- as.data.frame(prediction.r) #riccardo
+prediction.k <- as.data.frame(prediction.k) #kristian
+prediction.d <- as.data.frame(prediction.d) #daina
+prediction.m <- as.data.frame(prediction.m) #mikkel
+
+#renaming the coloumn so it is more meaningful
+prediction.r <-  prediction.r %>% 
+  rename(no.cor.answer = prediction.r) #riccardo
+
+prediction.k <-  prediction.k %>% 
+  rename(no.cor.answer = prediction.k) #kristian
+
+prediction.d <-  prediction.d %>% 
+  rename(no.cor.answer = prediction.d) #daina
+
+prediction.m <-  prediction.m %>% 
+  rename(no.cor.answer = prediction.m) #mikkel
+
+#plotting Riccardo
+ggplot(prediction.r, aes(x = no.cor.answer))+ #no. of correct answer on x-axis
+    geom_histogram(aes(fill = no.cor.answer == 9), #histogram, separately coloring the actual no. of correct answers from new data to be able to compare with the predicted values 
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) + #defining colors
+    scale_x_continuous("Number of correct answers", #making the x-axis nice
+                     breaks = seq(from = 0, to = 10, by = 1)) +
+    ylab("Predicted count for Riccardo") +
+    coord_cartesian(xlim = c(0, 10)) +
+    theme_minimal() +
+    theme(legend.position = "none")
+
+#plotting Kristian
+ggplot(prediction.k, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 8),
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 12, by = 1)) +
+    ylab("Predicted count for Kristian") +
+    coord_cartesian(xlim = c(0, 12)) +
+    theme_minimal() +
+    theme(legend.position = "none")
+
+#plotting Daina
+ggplot(prediction.d, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 148),
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 172, by = 10)) +
+    ylab("Predicted count for Daina") +
+    theme_minimal() +
+    theme(legend.position = "none")
+
+#plotting Mikkel
+ggplot(prediction.m, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 34),
+                 binwidth = 1, center = 0,
+                 color = "black", size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 65, by = 5)) +
+    ylab("Predicted count for Mikkel") +
+    theme_minimal() +
+    theme(legend.position = "none")
+```
+
+Other method, using previous posterior as new updated prior
 
 ```{r}
 #Riccardo
@@ -506,7 +579,7 @@ unstd.posterior.r <- likelihood.r * new.r$prior
 posterior.r <- unstd.posterior.r / sum(unstd.posterior.r)
 
 #Draw the plot
-ggplot(new.r, aes(grid,posterior.r)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Riccardo's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+ggplot(new.r, aes(grid,posterior.r)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Riccardo's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the previous posterior as updated prior")
 
 #kristian
 new.k <- 
@@ -523,7 +596,7 @@ unstd.posterior.k <- likelihood.k * new.k$prior
 posterior.k <- unstd.posterior.k / sum(unstd.posterior.k)
 
 #Draw the plot
-ggplot(new.k, aes(grid,posterior.k)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+ggplot(new.k, aes(grid,posterior.k)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the previous posterior as updated prior")
 
 #Daina
 new.d <- 
@@ -531,7 +604,7 @@ new.d <-
     mutate(prior = posterior)
 
 #Compute the likelihood at each value in grid
-likelihood.d <- dbinom(9 , size = 10 , prob = p_grid )
+likelihood.d <- dbinom(148 , size = 172 , prob = p_grid )
 
 #Compute the posterior (likelihood by prior)
 unstd.posterior.d <- likelihood.d * new.d$prior
@@ -540,7 +613,7 @@ unstd.posterior.d <- likelihood.d * new.d$prior
 posterior.d <- unstd.posterior.d / sum(unstd.posterior.d)
 
 #Draw the plot
-ggplot(new.d, aes(grid,posterior.d)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Daina's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+ggplot(new.d, aes(grid,posterior.d)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Daina's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the previous posterior as updated prior")
 
 #Mikkel
 new.m <- 
@@ -548,7 +621,7 @@ new.m <-
     mutate(prior = posterior)
 
 #Compute the likelihood at each value in grid
-likelihood.k <- dbinom(148 , size = 172 , prob = p_grid )
+likelihood.m <- dbinom(34 , size = 65 , prob = p_grid )
 
 #Compute the posterior (likelihood by prior)
 unstd.posterior.m <- likelihood.m * new.m$prior
@@ -557,11 +630,12 @@ unstd.posterior.m <- likelihood.m * new.m$prior
 posterior.m <- unstd.posterior.m / sum(unstd.posterior.m)
 
 #Draw the plot
-ggplot(new.m, aes(grid,posterior.m)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
-
-
-
+ggplot(new.m, aes(grid,posterior.m)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Mikkel's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the previous posterior as updated prior")
 ```
+
+When comparing the updated prior (green line) to the posterior distribution for each teacher, we can highlight the errors of the prediction. 
+
+Highest posterior density intervals:
 ```{r}
 
 
@@ -583,6 +657,8 @@ HPDI(samples.m, 0.5)
 
 
 ```
+
+And plotting the above intervals:
 
 ```{r}
 
@@ -625,3 +701,7 @@ Guidance Tips
 2. Last year's results are this year's expectations.
 3. Are the parameter estimates changing? (way 1)
 4. How does the new data look in last year's predictive posterior? (way 2)
+
+When implementing the other way of assessing the predicitions, we again computed a posterior distribution, this time using the previously found posterior distribution (from the mean 0.8 and sd 0.2 prior and the original data) for each of the teachers as the new updated prior. Here, we used the new data for calculating the likelihood.
+
+Then, we found the highest posterior density intervals (HPDI) at 50 percent by sampling from the posterior. Results are shown in the following table and plots: 
