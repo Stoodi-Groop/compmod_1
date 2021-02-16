@@ -103,7 +103,7 @@ posterior.k <- unstd.posterior.k / sum(unstd.posterior.k) #standardized posterio
 d.k <- data.frame(grid = p_grid, posterior = posterior.k, prior = uniform.prior, likelihood = likelihood.k)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.k)) +  geom_point() + geom_line() + 
+ggplot(d.k, aes(grid,posterior.k)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, uniform.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 
@@ -124,7 +124,7 @@ posterior.d <- unstd.posterior.d / sum(unstd.posterior.d) #standardized posterio
 d.d <- data.frame(grid = p_grid, posterior = posterior.d, prior = uniform.prior, likelihood = likelihood.d)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.d)) +  geom_point() + geom_line() + 
+ggplot(d.d, aes(grid,posterior.d)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, uniform.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 ```
@@ -143,7 +143,7 @@ posterior.m <- unstd.posterior.m / sum(unstd.posterior.m) #standardized posterio
 d.m <- data.frame(grid = p_grid, posterior = posterior.m, prior = uniform.prior, likelihood = likelihood.m)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.m)) +  geom_point() + geom_line() + 
+ggplot(d.m, aes(grid,posterior.m)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, uniform.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 ```
@@ -191,10 +191,11 @@ posterior.k <- unstd.posterior.k / sum(unstd.posterior.k) #standardized posterio
 d.k <- data.frame(grid = p_grid, posterior = posterior.k, prior = new.prior, likelihood = likelihood.k)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.k)) +  geom_point() + geom_line() + 
+ggplot(d.k, aes(grid,posterior.k)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, new.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 ```
+
 ```{r}
 #daina
 dens(rbinom(1e4, 198, rnorm(1e4, 0.8, 0.2))) #testing the prior, looks good
@@ -209,7 +210,7 @@ posterior.d <- unstd.posterior.d / sum(unstd.posterior.d) #standardized posterio
 d.d <- data.frame(grid = p_grid, posterior = posterior.d, prior = new.prior, likelihood = likelihood.d)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.d)) +  geom_point() + geom_line() + 
+ggplot(d.d, aes(grid,posterior.d)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, new.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 
@@ -229,7 +230,7 @@ posterior.m <- unstd.posterior.m / sum(unstd.posterior.m) #standardized posterio
 d.m <- data.frame(grid = p_grid, posterior = posterior.m, prior = new.prior, likelihood = likelihood.m)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.m)) +  geom_point() + geom_line() + 
+ggplot(d.m, aes(grid,posterior.m)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, new.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 ```
@@ -288,7 +289,7 @@ posterior.k <- unstd.posterior.k / sum(unstd.posterior.k) #standardized posterio
 d.k <- data.frame(grid = p_grid, posterior = posterior.k, prior = uniform.prior, likelihood = likelihood.k)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.k)) +  geom_point() + geom_line() + 
+ggplot(d.k, aes(grid,posterior.k)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, uniform.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 
@@ -305,7 +306,7 @@ posterior.k <- unstd.posterior.k / sum(unstd.posterior.k) #standardized posterio
 d.k <- data.frame(grid = p_grid, posterior = posterior.k, prior = new.prior, likelihood = likelihood.k)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.k)) +  geom_point() + geom_line() + 
+ggplot(d.k, aes(grid,posterior.k)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, new.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 ```
@@ -324,7 +325,7 @@ posterior.d <- unstd.posterior.d / sum(unstd.posterior.d) #standardized posterio
 d.d <- data.frame(grid = p_grid, posterior = posterior.d, prior = uniform.prior, likelihood = likelihood.d)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.d)) +  geom_point() + geom_line() + 
+ggplot(d.d, aes(grid,posterior.d)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, uniform.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 
@@ -341,7 +342,7 @@ posterior.d <- unstd.posterior.d / sum(unstd.posterior.d) #standardized posterio
 d.d <- data.frame(grid = p_grid, posterior = posterior.d, prior = new.prior, likelihood = likelihood.d)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.d)) +  geom_point() + geom_line() + 
+ggplot(d.d, aes(grid,posterior.d)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, new.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 ```
@@ -361,7 +362,7 @@ posterior.m <- unstd.posterior.m / sum(unstd.posterior.m) #standardized posterio
 d.m <- data.frame(grid = p_grid, posterior = posterior.m, prior = uniform.prior, likelihood = likelihood.m)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.m)) +  geom_point() + geom_line() + 
+ggplot(d.m, aes(grid,posterior.m)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, uniform.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 
@@ -378,7 +379,7 @@ posterior.m <- unstd.posterior.m / sum(unstd.posterior.m) #standardized posterio
 d.m <- data.frame(grid = p_grid, posterior = posterior.m, prior = new.prior, likelihood = likelihood.m)
 
 #plot plot plot
-ggplot(d, aes(grid,posterior.m)) +  geom_point() + geom_line() + 
+ggplot(d.m, aes(grid,posterior.m)) +  geom_point() + geom_line() + 
   theme_classic() + geom_line(aes(grid, new.prior/dens),color= 'red') +  
   xlab("Knowledge of CogSci") + ylab("posterior probability")
 ```
@@ -393,7 +394,107 @@ Last year you assessed the teachers (darned time runs quick!). Now you want to r
 
 Questions to be answered (but see guidance below):
 1- Write a paragraph discussing how assessment of prediction performance is different in Bayesian vs. frequentist models
+
 2- Provide at least one plot and one written line discussing prediction errors for each of the teachers.
+```{r}
+#riccardo 
+sample.r <-  d %>% 
+  slice_sample(n = 1000, weight_by = posterior, replace = T)
+
+prediction.r <- rbinom(n = 1e4, size = 10, prob = rnorm(1e4, mean(sample.r$grid), sd(sample.r$grid) ))
+
+hist(prediction.r)
+```
+
+
+```{r}
+#kristian 
+sample.k <-  d.k %>% 
+  slice_sample(n = 1000, weight_by = posterior, replace = T)
+
+prediction.k <- rbinom(n = 1e4, size = 12, prob = rnorm(1e4, mean(sample.k$grid), sd(sample.k$grid) ))
+
+hist(prediction.k)
+```
+
+
+```{r}
+#daina 
+sample.d <-  d.d %>% 
+  slice_sample(n = 1000, weight_by = posterior, replace = T)
+
+prediction.d <- rbinom(n = 1e4, size = 172, prob = rnorm(1e4, mean(sample.d$grid), sd(sample.d$grid) ))
+
+hist(prediction.d)
+
+#mikkel 
+sample.m <-  d.m %>% 
+  slice_sample(n = 1000, weight_by = posterior, replace = T)
+
+prediction.m <- rbinom(n = 1e4, size = 65, prob = rnorm(1e4, mean(sample.m$grid), sd(sample.m$grid) ))
+
+hist(prediction.m)
+```
+
+```{r}
+#riccardo
+d.r2 <- d %>% 
+  mutate(prior = posterior)
+
+likelihood.r2 <- dbinom( 9 , size = 10 , prob = p_grid ) #calculating the likelihood
+
+unstd.posterior.r2 <- likelihood.r2 * d.r2$prior #calculating the unstandardized posterior
+
+posterior.r2 <- unstd.posterior.r2 / sum(unstd.posterior.r2) #standardized posterior
+
+
+d.r2 <- data.frame(grid = p_grid, posterior = posterior.r2, prior = d.r2$prior, likelihood = likelihood.r2)
+
+#plot plot plot
+ggplot(d.r2, aes(grid,posterior)) +  geom_point() + geom_line() + 
+  theme_classic() + geom_line(aes(grid, prior),color= 'red') +  
+  xlab("Knowledge of CogSci") + ylab("posterior probability")
+
+```
+
+```{r}
+#kristian
+d.k2 <- d.k %>% 
+  mutate(prior = posterior)
+
+likelihood.k2 <- dbinom( 8 , size = 12 , prob = p_grid ) #calculating the likelihood
+
+unstd.posterior.k2 <- likelihood.k2 * d.k2$prior #calculating the unstandardized posterior
+
+posterior.k2 <- unstd.posterior.k2 / sum(unstd.posterior.k2) #standardized posterior
+
+
+d.k2 <- data.frame(grid = p_grid, posterior = posterior.k2, prior = d.k2$prior, likelihood = likelihood.k2)
+
+#plot plot plot
+ggplot(d.k2, aes(grid,posterior)) +  geom_point() + geom_line() + 
+  theme_classic() + geom_line(aes(grid, prior),color= 'red') +  
+  xlab("Knowledge of CogSci") + ylab("posterior probability")
+```
+```{r}
+#daina
+d.d2 <- d.d %>% 
+  mutate(prior = posterior)
+
+likelihood.d2 <- dbinom( 148 , size = 172 , prob = p_grid ) #calculating the likelihood
+
+unstd.posterior.d2 <- likelihood.d2 * d.d2$prior #calculating the unstandardized posterior
+
+posterior.d2 <- unstd.posterior.d2 / sum(unstd.posterior.d2) #standardized posterior
+
+
+d.d2 <- data.frame(grid = p_grid, posterior = posterior.d2, prior = d.d2$prior, likelihood = likelihood.d2)
+
+#plot plot plot
+ggplot(d.d2, aes(grid,posterior)) +  geom_point() + geom_line() + 
+  theme_classic() + geom_line(aes(grid, prior),color= 'red') +  
+  xlab("Knowledge of CogSci") + ylab("posterior probability")
+```
 
 This is the old data:
 - Riccardo: 3 correct answers out of 6 questions
