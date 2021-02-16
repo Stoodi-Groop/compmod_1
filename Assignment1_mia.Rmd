@@ -36,8 +36,7 @@ Questions:
 - N.B. for the rest of the exercise just keep using the grid approximation (we'll move to quadratic approximations in two classes)
 ```{r}
 library(rethinking)
-library(tidyverse)
-
+pacman::p_load(tidyverse, ggthemes)
 
 #grid approximation 
 dens <- 50
@@ -51,9 +50,9 @@ dens(rbinom(1e4, 6, runif(1e4, 0, 1))) #testing the prior, looks good
 
 likelihood.ric <- dbinom( 3 , size = 6 , prob = p_grid ) #calculating the likelihood
 
-unstd.posterior.ric <- likelihood * prior #calculating the unstandardized posterior
+unstd.posterior.ric <- likelihood.ric * uniform.prior #calculating the unstandardized posterior
 
-posterior.ric <- unstd.posterior / sum(unstd.posterior) #standardized posterior
+posterior.ric <- unstd.posterior.ric / sum(unstd.posterior.ric) #standardized posterior
 
 
 d <- data.frame(grid = p_grid, posterior = posterior.ric, prior = uniform.prior, likelihood = likelihood.ric)
@@ -398,42 +397,112 @@ Questions to be answered (but see guidance below):
 2- Provide at least one plot and one written line discussing prediction errors for each of the teachers.
 ```{r}
 #riccardo 
+
+#sampling from the posterior
 sample.r <-  d %>% 
   slice_sample(n = 1000, weight_by = posterior, replace = T)
 
+#creating predictions
 prediction.r <- rbinom(n = 1e4, size = 10, prob = rnorm(1e4, mean(sample.r$grid), sd(sample.r$grid) ))
 
-hist(prediction.r)
+#saving predictions as a dataframe 
+prediction.r <- as.data.frame(prediction.r) 
+
+#renaming the coloumn so it is more meaningful
+prediction.r <-  prediction.r %>% 
+  rename(no.cor.answer = prediction.r)
+
+#plotting 
+ggplot(prediction.r, aes(x = no.cor.answer))+ #no. of correct answer on x-axis
+    geom_histogram(aes(fill = no.cor.answer == 9), #histogram, separately coloring the actual no. of correct answers from new data to be able to compare with the predicted values 
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) + #defining colors
+    scale_x_continuous("Number of correct answers", #making the x-axis nice
+                     breaks = seq(from = 0, to = 10, by = 1)) +
+    ylab("Predicted count for Riccardo") +
+    coord_cartesian(xlim = c(0, 10)) +
+    theme_minimal() +
+    theme(legend.position = "none")
+
 ```
 
 
 ```{r}
-#kristian 
+#kristian, for comments see riccardo's chunk
 sample.k <-  d.k %>% 
   slice_sample(n = 1000, weight_by = posterior, replace = T)
 
 prediction.k <- rbinom(n = 1e4, size = 12, prob = rnorm(1e4, mean(sample.k$grid), sd(sample.k$grid) ))
 
-hist(prediction.k)
+prediction.k <- as.data.frame(prediction.k) 
+
+prediction.k <-  prediction.k %>% 
+  rename(no.cor.answer = prediction.k)
+
+ggplot(prediction.k, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 8),
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 12, by = 1)) +
+    ylab("Predicted count for Kristian") +
+    coord_cartesian(xlim = c(0, 12)) +
+    theme_minimal() +
+    theme(legend.position = "none")
 ```
 
 
 ```{r}
-#daina 
+#daina, for comments see riccardo's chunk
 sample.d <-  d.d %>% 
   slice_sample(n = 1000, weight_by = posterior, replace = T)
 
 prediction.d <- rbinom(n = 1e4, size = 172, prob = rnorm(1e4, mean(sample.d$grid), sd(sample.d$grid) ))
 
-hist(prediction.d)
+prediction.d <- as.data.frame(prediction.d) 
 
-#mikkel 
+prediction.d <-  prediction.d %>% 
+  rename(no.cor.answer = prediction.d)
+
+ggplot(prediction.d, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 148),
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 172, by = 10)) +
+    ylab("Predicted count for Daina") +
+    theme_minimal() +
+    theme(legend.position = "none")
+
+```
+
+
+```{r}
+#mikkel, for comments see riccardo's chunk
 sample.m <-  d.m %>% 
   slice_sample(n = 1000, weight_by = posterior, replace = T)
 
 prediction.m <- rbinom(n = 1e4, size = 65, prob = rnorm(1e4, mean(sample.m$grid), sd(sample.m$grid) ))
 
-hist(prediction.m)
+prediction.m <- as.data.frame(prediction.m) 
+
+prediction.m <-  prediction.m %>% 
+  rename(no.cor.answer = prediction.m)
+
+ggplot(prediction.m, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 34),
+                 binwidth = 1, center = 0,
+                 color = "black", size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 65, by = 5)) +
+    ylab("Predicted count for Mikkel") +
+    theme_minimal() +
+    theme(legend.position = "none")
+
 ```
 
 ```{r}
