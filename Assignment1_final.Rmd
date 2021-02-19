@@ -1,0 +1,672 @@
+---
+title: "Computational Modeling - Assignment 1"
+author: "Andrea, Anna, Helle, Maria, Mia"
+date: "07/01/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## In this assignment we learn how to assess rates from a binomial distribution, using the case of assessing your teachers' knowledge of CogSci
+
+N.B. this markdown has 2 parts as it spans 2 weeks of teaching
+
+### First part
+
+You want to assess your teachers' knowledge of cognitive science. "These guys are a bunch of drama(turgist) queens, mindless philosophers, chattering communication people and Russian spies. Do they really know CogSci?", you think.
+
+To keep things simple (your teachers should not be faced with too complicated things):
+- You created a pool of equally challenging questions on CogSci
+- Each question can be answered correctly or not (we don't allow partially correct answers, to make our life simpler).
+- Knowledge of CogSci can be measured on a scale from 0 (negative knowledge, all answers wrong) through 0.5 (random chance) to 1 (awesome CogSci superpowers)
+
+This is the data:
+- Riccardo: 3 correct answers out of 6 questions
+- Kristian: 2 correct answers out of 2 questions (then he gets bored)
+- Daina: 160 correct answers out of 198 questions (Daina never gets bored)
+- Mikkel: 66 correct answers out of 132 questions
+
+```{r}
+library(rethinking)
+library(tidyverse)
+
+```
+
+
+Questions:
+
+1. What's Riccardo's estimated knowledge of CogSci? What is the probability he knows more than chance (0.5) [try figuring this out. if you can't peek into chapters 3.1 and 3.2 and/or the slides]?
+
+- First implement a grid approximation (hint check paragraph 2.4.1!) with a uniform prior, calculate the posterior and plot the results
+
+
+```{r}
+#Riccardo: 3 correct answers out of 6 questions
+
+#define the grid
+dens <- 50
+p_grid <- seq(from = 0 , to = 1 , length.out = dens)
+
+#first trying with a uniform prior
+uniform.prior <- rep(1, dens ) #flat
+
+#test the prior
+dens(rbinom(1e4, 6, runif(1e4, 0, 1))) #looks fine 
+
+#calculate the likelihood for riccardo
+likelihood.r <- dbinom(3 , size = 6 , prob = p_grid )
+
+#compute posterior 
+unstd.posterior.r <- likelihood.r * uniform.prior
+
+#standardize the posterior
+posterior.r <- unstd.posterior.r / sum(unstd.posterior.r)
+
+#draw the plot
+d <- data.frame(grid = p_grid, posterior = posterior.r, prior = uniform.prior, likelihood = likelihood.r)
+
+ggplot(d, aes(grid,posterior)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'red')+  xlab("Riccardo's Knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using a uniform prior")
+
+
+
+```
+
+
+```
+
+
+
+- Then implement a quadratic approximation (hint check paragraph 2.4.2!).
+- N.B. for the rest of the exercise just keep using the grid approximation (we'll move to quadratic approximations in two classes)
+
+```
+
+```{r}
+#quadratic approximation for Riccardo
+
+#quap needs a provided formula (list of data), defining the probability of the data and the prior
+
+ric.qa <- quap(
+    alist(
+        C ~ dbinom( C+W ,p) , #binomial likelihood #C and W stands for correb and wrong
+        p ~ dunif(0,1) #uniform prior
+    ) ,
+    data=list(C=3,W=3))
+
+# display summary of quadratic approximation
+precis(ric.qa)
+
+#assuming the posterior is Gaussian, it is maximized at 0.5, and its standard deviation is 0.2"
+
+```
+
+
+2. Estimate all the teachers' knowledge of CogSci. Who's best? Use grid approximation. Comment on the posteriors of Riccardo and Mikkel.
+2a. Produce plots of the prior, and posterior for each teacher.
+
+
+```{r}
+#Kristian: 2 correct answers out of 2 questions (then he gets bored)
+
+#test the prior
+dens(rbinom(1e4, 2, runif(1e4, 0, 1))) #looks fine 
+
+#calculate the likelihood for Kristian
+likelihood.k <- dbinom(2 , size = 2 , prob = p_grid )
+
+#compute posterior 
+unstd.posterior.k <- likelihood.k * uniform.prior
+
+#standardize the posterior
+posterior.k <- unstd.posterior.k / sum(unstd.posterior.k)
+
+#draw the plot
+d.k <- data.frame(grid = p_grid, posterior = posterior.k, prior = uniform.prior, likelihood = likelihood.k)
+
+ggplot(d.k, aes(grid,posterior.k)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'red')+  xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using a uniform prior")
+
+```
+
+```{r}
+#Daina: 160 correct answers out of 198 questions 
+
+#test the prior
+dens(rbinom(1e4, 198, runif(1e4, 0, 1))) #looks fine 
+
+#calculate the likelihood for Daina
+likelihood.d <- dbinom(160 , size = 198 , prob = p_grid )
+
+#compute posterior 
+unstd.posterior.d <- likelihood.d * uniform.prior
+
+#standardize the posterior
+posterior.d <- unstd.posterior.d / sum(unstd.posterior.d)
+
+#draw the plot
+d.d <- data.frame(grid = p_grid, posterior = posterior.d, prior = uniform.prior, likelihood = likelihood.d)
+
+ggplot(d.d, aes(grid,posterior.d)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'red')+  xlab("Daina's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using a uniform prior")
+```
+
+
+```{r}
+
+#Mikkel: 66 correct answers out of 132 questions
+
+#test the prior
+dens(rbinom(1e4, 132, runif(1e4, 0, 1))) #looks fine 
+
+#calculate the likelihood for riccardo
+likelihood.m <- dbinom(66 , size = 132 , prob = p_grid )
+
+#compute posterior 
+unstd.posterior.m <- likelihood.m * uniform.prior
+
+#standardize the posterior
+posterior.m <- unstd.posterior.m / sum(unstd.posterior.m)
+
+#draw the plot
+d.m <- data.frame(grid = p_grid, posterior = posterior.m, prior = uniform.prior, likelihood = likelihood.m)
+
+ggplot(d.m, aes(grid,posterior.m)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'red')+  xlab("Mikkel's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using a uniform prior")
+
+```
+
+
+3. Change the prior. Given your teachers have all CogSci jobs, you should start with a higher appreciation of their knowledge: the prior is a normal distribution with a mean of 0.8 and a standard deviation of 0.2. Do the results change (and if so how)?
+3a. Produce plots of the prior and posterior for each teacher.
+
+```{r}
+#define new prior
+new.prior <- dnorm(p_grid, 0.8, 0.2) #sensibly centered at chance
+
+```
+
+Riccardo: 3 correct answers out of 6 questions
+
+
+```{r}
+
+
+#testing the prior
+dens(rbinom(1e4, 6, rnorm(1e4, 0.8, 0.2))) 
+
+#Compute the likelihood at each value in grid
+likelihood.r <- dbinom(3 , size = 6 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.r <- likelihood.r * new.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.r <- unstd.posterior.r / sum(unstd.posterior.r)
+
+#Draw the plot
+d.r <- data.frame(grid = p_grid, posterior = posterior.r, prior = new.prior, likelihood.r = likelihood.r)
+ggplot(d.r, aes(grid,posterior.r)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, new.prior/dens),color= 'green')+xlab("Riccardo's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+```
+
+Kristian: 2 correct answers out of 2 questions (then he gets bored)
+
+```{r}
+
+#testing the prior
+dens(rbinom(1e4, 6, rnorm(1e4, 0.8, 0.2))) 
+
+#calculate the likelihood for riccardo
+likelihood.k <- dbinom(2 , size = 2 , prob = p_grid )
+
+#compute posterior 
+unstd.posterior.k <- likelihood.k * new.prior
+
+#standardize the posterior
+posterior.k <- unstd.posterior.k / sum(unstd.posterior.k)
+
+#draw the plot
+d.k <- data.frame(grid = p_grid, posterior = posterior.k, prior = new.prior, likelihood = likelihood.k)
+
+ggplot(d.k, aes(grid,posterior.k)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'green')+  xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+```
+
+- Daina: 160 correct answers out of 198 questions (Daina never gets bored)
+
+```{r}
+#testing the prior
+dens(rbinom(1e4, 198, rnorm(1e4, 0.8, 0.2))) 
+
+#Compute the likelihood at each value in grid
+likelihood.d <- dbinom(160 , size = 198 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.d <- likelihood.d * new.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.d <- unstd.posterior.d / sum(unstd.posterior.d)
+
+#Draw the plot
+d.d <- data.frame(grid = p_grid, posterior = posterior.d, prior = new.prior, likelihood.d = likelihood.d)
+ggplot(d.d, aes(grid,posterior.d)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, new.prior/dens),color= 'green')+xlab("Daina's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+```
+
+- Mikkel: 66 correct answers out of 132 questions
+
+```{r}
+#testing the prior
+dens(rbinom(1e4, 132, rnorm(1e4, 0.8, 0.2))) 
+
+#Compute the likelihood at each value in grid
+likelihood.m <- dbinom(66 , size = 132 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.m <- likelihood.m * new.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.m <- unstd.posterior.m / sum(unstd.posterior.m)
+
+#Draw the plot
+d.m <- data.frame(grid = p_grid, posterior = posterior.m, prior = new.prior, likelihood.d = likelihood.m)
+ggplot(d.m, aes(grid,posterior.m)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, new.prior/dens),color= 'green')+xlab("Mikkel's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+```
+
+
+4. You go back to your teachers and collect more data (multiply the previous numbers by 100). Calculate their knowledge with both a uniform prior and a normal prior with a mean of 0.8 and a standard deviation of 0.2. Do you still see a difference between the results? Why?
+
+Riccardo 100 uniform
+```{r}
+#Compute the likelihood at each value in grid
+likelihood.r <- dbinom(300 , size = 600 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.r <- likelihood.r * uniform.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.r <- unstd.posterior.r / sum(unstd.posterior.r)
+
+#Draw the plot
+d.r <- data.frame(grid = p_grid, posterior = posterior.r, prior = uniform.prior, likelihood.r = likelihood.r)
+ggplot(d.r, aes(grid,posterior.r)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, uniform.prior/dens),color= 'green')+xlab("Riccardo's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the uniform prior")
+```
+
+Riccardo 100 other prior
+```{r}
+#Compute the likelihood at each value in grid
+likelihood.r <- dbinom(300 , size = 600 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.r <- likelihood.r * new.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.r <- unstd.posterior.r / sum(unstd.posterior.r)
+
+#Draw the plot
+d.r <- data.frame(grid = p_grid, posterior = posterior.r, prior = new.prior, likelihood.r = likelihood.r)
+ggplot(d.r, aes(grid,posterior.r)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, new.prior/dens),color= 'green')+xlab("Riccardo's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+
+```
+
+Kristian 100 uniform
+
+```{r}
+#Compute the likelihood at each value in grid
+likelihood.k <- dbinom(200 , size = 200 , prob = p_grid )
+
+#compute posterior 
+unstd.posterior.k <- likelihood.k * uniform.prior
+
+#standardize the posterior
+posterior.k <- unstd.posterior.k / sum(unstd.posterior.m)
+
+#draw the plot
+d.k <- data.frame(grid = p_grid, posterior = posterior.k, prior = uniform.prior, likelihood = likelihood.k)
+
+ggplot(d.k, aes(grid,posterior.k)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'red')+  xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the uniform prior")
+```
+Kristian 100 other prior
+
+```{r}
+#Compute the likelihood at each value in grid
+likelihood.k <- dbinom(200 , size = 200 , prob = p_grid )
+
+#compute posterior 
+unstd.posterior.k <- likelihood.k * new.prior
+
+#standardize the posterior
+posterior.k <- unstd.posterior.k / sum(unstd.posterior.m)
+
+#draw the plot
+d.k <- data.frame(grid = p_grid, posterior = posterior.k, prior = new.prior, likelihood = likelihood.k)
+
+ggplot(d.k, aes(grid,posterior.k)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'red')+  xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+```
+
+Daina 100 uniform
+
+```{r}
+#Compute the likelihood at each value in grid
+likelihood.d <- dbinom(16000 , size = 19800 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.d <- likelihood.d * uniform.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.d <- unstd.posterior.d / sum(unstd.posterior.d)
+
+#Draw the plot
+d.d <- data.frame(grid = p_grid, posterior = posterior.d, prior = uniform.prior, likelihood.d = likelihood.d)
+ggplot(d.d, aes(grid,posterior.d)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'green')+xlab("Daina's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the uniform prior")
+```
+
+Daina 100 other prior
+```{r}
+#Compute the likelihood at each value in grid
+likelihood.d <- dbinom(16000 , size = 19800 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.d <- likelihood.d * new.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.d <- unstd.posterior.d / sum(unstd.posterior.d)
+
+#Draw the plot
+d.d <- data.frame(grid = p_grid, posterior = posterior.d, prior = new.prior, likelihood.d = likelihood.d)
+ggplot(d.d, aes(grid,posterior.d)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, new.prior/dens),color= 'green')+xlab("Daina's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+```
+
+Mikkel 100 uniform
+
+
+```{r}
+#Compute the likelihood at each value in grid
+likelihood.m <- dbinom(6600 , size = 13200 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.m <- likelihood.m * uniform.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.m <- unstd.posterior.m / sum(unstd.posterior.m)
+
+#Draw the plot
+d.m <- data.frame(grid = p_grid, posterior = posterior.m, prior = uniform.prior, likelihood.m = likelihood.m)
+ggplot(d.m, aes(grid,posterior.m)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior/dens),color= 'green')+xlab("Mikkel's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the uniform prior")
+```
+Mikkel 100 other prior
+
+```{r}
+#Compute the likelihood at each value in grid
+likelihood.m <- dbinom(6600 , size = 13200 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.m <- likelihood.m * new.prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.m <- unstd.posterior.m / sum(unstd.posterior.m)
+
+#Draw the plot
+d.m <- data.frame(grid = p_grid, posterior = posterior.m, prior = new.prior, likelihood.m = likelihood.m)
+ggplot(d.m, aes(grid,posterior.m)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, new.prior/dens),color= 'green')+xlab("Mikkel's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the updated prior")
+```
+
+
+5. Imagine you're a skeptic and think your teachers do not know anything about CogSci, given the content of their classes. How would you operationalize that belief?
+
+6. Optional question: Can you estimate the difference between Riccardo's estimated knowledge and that of each of the other teachers? Would you deem it credible (that is, would you believe that it is actually different)? 
+
+### Second part: Focusing on predictions
+
+Last year you assessed the teachers (darned time runs quick!). Now you want to re-test them and assess whether your models are producing reliable predictions. In Methods 3 we learned how to do machine-learning style assessment of predictions (e.g. rmse on testing datasets). Bayesian stats makes things a bit more complicated. So we'll try out how that works. N.B. You can choose which prior to use for the analysis of last year's data.
+
+Questions to be answered (but see guidance below):
+1- Write a paragraph discussing how assessment of prediction performance is different in Bayesian vs. frequentist models
+
+2- Provide at least one plot and one written line discussing prediction errors for each of the teachers.
+
+This is the old data:
+- Riccardo: 3 correct answers out of 6 questions
+- Kristian: 2 correct answers out of 2 questions (then he gets bored)
+- Daina: 160 correct answers out of 198 questions (Daina never gets bored)
+- Mikkel: 66 correct answers out of 132 questions
+
+This is the new data:
+- Riccardo: 9 correct answers out of 10 questions (then he freaks out about teaching preparation and leaves)
+- Kristian: 8 correct answers out of 12 questions
+- Daina: 148 correct answers out of 172 questions (again, Daina never gets bored)
+- Mikkel: 34 correct answers out of 65 questions
+
+```{r}
+#sampling from the posteriors for each teacher
+set.seed(100)
+
+#riccardo
+samples.riccardo <- 
+    d.r %>% 
+    slice_sample(n = 1000, weight_by = d.r$posterior, replace = T)
+
+#kristian
+samples.kristian <- 
+    d.k %>% 
+    slice_sample(n = 1000, weight_by = d.k$posterior, replace = T)
+
+#daina
+samples.daina <- 
+    d.d %>% 
+    slice_sample(n = 1000, weight_by = d.d$posterior, replace = T)
+
+#mikkel
+samples.mikkel <- 
+    d.m %>% 
+    slice_sample(n = 1000, weight_by = d.m$posterior, replace = T)
+
+```
+
+
+```{r}
+#doing predictions for Riccardo
+prediction.r <- rbinom(n = 1e4, size = 10, prob = rnorm(1e4, mean(samples.riccardo$grid), sd(samples.riccardo$grid) ))
+
+#simple plot
+hist(prediction.r) 
+
+#doing predictions for Kristian
+prediction.k <- rbinom(n = 1e4, size = 12, prob = rnorm(1e4, mean(samples.kristian$grid), sd(samples.kristian$grid) ))
+
+#simple plot
+hist(prediction.k)
+
+#doing predictions for Daina
+prediction.d <- rbinom(n = 1e4, size = 172, prob = rnorm(1e4, mean(samples.daina$grid), sd(samples.daina$grid) ))
+
+#simple plot
+hist(prediction.d)
+
+#doing predictions for Mikkel
+prediction.m <- rbinom(n = 1e4, size = 65, prob = rnorm(1e4, mean(samples.mikkel$grid), sd(samples.mikkel$grid) ))
+
+#simple plot
+hist(prediction.m)
+
+
+```
+
+Now plotting the predictions and highlighting expectations using different colors
+
+```{r}
+#saving predictions as a dataframe 
+prediction.r <- as.data.frame(prediction.r) #riccardo
+prediction.k <- as.data.frame(prediction.k) #kristian
+prediction.d <- as.data.frame(prediction.d) #daina
+prediction.m <- as.data.frame(prediction.m) #mikkel
+
+#renaming the coloumn so it is more meaningful
+prediction.r <-  prediction.r %>% 
+  rename(no.cor.answer = prediction.r) #riccardo
+
+prediction.k <-  prediction.k %>% 
+  rename(no.cor.answer = prediction.k) #kristian
+
+prediction.d <-  prediction.d %>% 
+  rename(no.cor.answer = prediction.d) #daina
+
+prediction.m <-  prediction.m %>% 
+  rename(no.cor.answer = prediction.m) #mikkel
+
+#plotting Riccardo
+ggplot(prediction.r, aes(x = no.cor.answer))+ #no. of correct answer on x-axis
+    geom_histogram(aes(fill = no.cor.answer == 9), #histogram, separately coloring the actual no. of correct answers from new data to be able to compare with the predicted values 
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) + #defining colors
+    scale_x_continuous("Number of correct answers", #making the x-axis nice
+                     breaks = seq(from = 0, to = 10, by = 1)) +
+    ylab("Predicted count for Riccardo") +
+    coord_cartesian(xlim = c(0, 10)) +
+    theme_minimal() +
+    theme(legend.position = "none")
+
+#plotting Kristian
+ggplot(prediction.k, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 8),
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 12, by = 1)) +
+    ylab("Predicted count for Kristian") +
+    coord_cartesian(xlim = c(0, 12)) +
+    theme_minimal() +
+    theme(legend.position = "none")
+
+#plotting Daina
+ggplot(prediction.d, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 148),
+                 binwidth = 1, center = 0,
+                 color = "black" , size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 172, by = 10)) +
+    ylab("Predicted count for Daina") +
+    theme_minimal() +
+    theme(legend.position = "none")
+
+#plotting Mikkel
+ggplot(prediction.m, aes(x = no.cor.answer))+
+    geom_histogram(aes(fill = no.cor.answer == 34),
+                 binwidth = 1, center = 0,
+                 color = "black", size = 1/10) +  
+    scale_fill_manual(values = c("gray60", "firebrick")) +
+    scale_x_continuous("Number of correct answers",
+                     breaks = seq(from = 0, to = 65, by = 5)) +
+    ylab("Predicted count for Mikkel") +
+    theme_minimal() +
+    theme(legend.position = "none")
+```
+
+Other method, using previous posterior as new updated prior
+
+```{r}
+#Riccardo
+new.r <- 
+    d.r %>% 
+    mutate(prior = posterior)
+
+#Compute the likelihood at each value in grid
+likelihood.r <- dbinom(9 , size = 10 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.r <- likelihood.r * new.r$prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.r <- unstd.posterior.r / sum(unstd.posterior.r)
+
+#Draw the plot
+ggplot(new.r, aes(grid,posterior.r)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Riccardo's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the previous posterior as updated prior")
+
+#kristian
+new.k <- 
+    d.k %>% 
+    mutate(prior = posterior)
+
+#Compute the likelihood at each value in grid
+likelihood.k <- dbinom(8 , size = 12 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.k <- likelihood.k * new.k$prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.k <- unstd.posterior.k / sum(unstd.posterior.k)
+
+#Draw the plot
+ggplot(new.k, aes(grid,posterior.k)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Kristian's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the previous posterior as updated prior")
+
+#Daina
+new.d <- 
+    d.d %>% 
+    mutate(prior = posterior)
+
+#Compute the likelihood at each value in grid
+likelihood.d <- dbinom(148 , size = 172 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.d <- likelihood.d * new.d$prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.d <- unstd.posterior.d / sum(unstd.posterior.d)
+
+#Draw the plot
+ggplot(new.d, aes(grid,posterior.d)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Daina's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the previous posterior as updated prior")
+
+#Mikkel
+new.m <- 
+    d.m %>% 
+    mutate(prior = posterior)
+
+#Compute the likelihood at each value in grid
+likelihood.m <- dbinom(34 , size = 65 , prob = p_grid )
+
+#Compute the posterior (likelihood by prior)
+unstd.posterior.m <- likelihood.m * new.m$prior
+
+#Standardize the posterior (so it sums to 1)
+posterior.m <- unstd.posterior.m / sum(unstd.posterior.m)
+
+#Draw the plot
+ggplot(new.m, aes(grid,posterior.m)) +  geom_point() +geom_line()+theme_classic()+  geom_line(aes(grid, prior),color= 'green')+xlab("Mikkel's knowledge of CogSci")+ ylab("posterior probability")+ggtitle("Grid approximation using the previous posterior as updated prior")
+```
+
+When comparing the updated prior (green line) to the posterior distribution for each teacher, we can highlight the errors of the prediction. 
+
+Highest posterior density intervals:
+```{r}
+
+
+#check HPDI for Riccardo
+samples.r<-sample(p_grid, prob=posterior.r, size=1e4, replace=TRUE)
+HPDI(samples.r, 0.5)
+
+#check HPDI for Kristian
+samples.k<-sample(p_grid, prob=posterior.k, size=1e4, replace=TRUE)
+HPDI(samples.k, 0.5)
+
+#check HPDI for Daina
+samples.d<-sample(p_grid, prob=posterior.d, size=1e4, replace=TRUE)
+HPDI(samples.d, 0.5)
+
+#check HPDI for Mikkel
+samples.m<-sample(p_grid, prob=posterior.m, size=1e4, replace=TRUE)
+HPDI(samples.m, 0.5)
+
+
+```
+
+
+
+Guidance Tips
+
+1. There are at least two ways of assessing predictions.
+2. Last year's results are this year's expectations.
+3. Are the parameter estimates changing? (way 1)
+4. How does the new data look in last year's predictive posterior? (way 2)
+
+When implementing the other way of assessing the predicitions, we again computed a posterior distribution, this time using the previously found posterior distribution (from the mean 0.8 and sd 0.2 prior and the original data) for each of the teachers as the new updated prior. Here, we used the new data for calculating the likelihood.
+
+Then, we found the highest posterior density intervals (HPDI) at 50 percent by sampling from the posterior. Results are shown in the following table and plots: 
