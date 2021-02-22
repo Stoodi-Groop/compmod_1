@@ -36,7 +36,7 @@ Questions:
 - N.B. for the rest of the exercise just keep using the grid approximation (we'll move to quadratic approximations in two classes)
 ```{r}
 library(rethinking)
-pacman::p_load(tidyverse, ggthemes)
+pacman::p_load(tidyverse)
 
 #grid approximation 
 dens <- 50
